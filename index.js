@@ -4,12 +4,10 @@ const addButtonEl = document.querySelector('.input-group__add-button');
 const API_URL = 'http://localhost:3000';
 
 let count = 0;
-let todos = [
-  {
-    title: 'React 공부',
-    complete: false
-  }
-]
+let todos = [{
+  title: 'React 공부',
+  complete: false
+}]
 
 // 할 일 추가 (엔터키를 눌렀을 때)
 inputEl.addEventListener('keypress', async e => {
@@ -29,31 +27,43 @@ addButtonEl.addEventListener('click', async e => {
 });
 
 async function addTodo(title) {
-  todos.push({
-    id: count++,
-    title,
-    complete: false
-  });
+  return fetch('http://localhost:3000/todos', {
+    method: 'post',
+    body: JSON.stringify({ title, complete: false }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
 }
 
 async function removeTodo(todoId) {
-  todos = todos.filter(t => t.id !== todoId);
+  return fetch(`${API_URL}/todos/${todoId}`, { method: 'delete' });
 }
 
 async function updateTodo(todoId, complete) {
-  for (let todo of todos) {
-    if (todo.id === todoId) {
-      todo.complete = complete;
+
+  console.log(todoId, complete);
+  return fetch(`${API_URL}/todos/${todoId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ complete }),
+    headers: {
+      'Content-Type': 'application/json'
     }
-  }
+  })
 }
 
 async function refreshTodoList() {
+  //REST API에서 할 일 목록 가져오기
+  const res = await fetch(`${API_URL}/todos`);
+  const todos = await res.json();
+  console.log(todos);
+
   // 현재 화면의 할 일 목록 삭제
   todoListEl.innerHTML = '';
 
   // 할 일 목록 새로 표시하기
-  for (let {id, title, complete} of todos) {
+  for (let { id, title, complete }
+    of todos) {
     const todoEl = document.createElement('div');
     todoEl.classList.add('todo-list__item');
 
